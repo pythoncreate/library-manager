@@ -34,7 +34,8 @@ block content
             td= loan.returned_on
             td
             if(!loan.returned_on)
-                a.button(href=`/books/${loan.Book.id}/return`) Return Book
+            td
+              a.button(href=`/books/${loan.Book.id}/return`) Return Book
       else
         tr
           td No Loans

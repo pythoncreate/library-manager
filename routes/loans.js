@@ -3,19 +3,21 @@
 var express = require('express');
 var router = express.Router();
 
-var Book = require('../models').Book;
-var Patron = require('../models').Patron;
-var Loan = require('../models').Loan;
+const { Sequelize, Loan, Book, Patron } = require('../models');
 
-// Get all loans
-router.get('/', function(req, res, next) {
-  Loan.findAndCountAll().then(function(results) {
-      res.render('all_loans', {
+router.get('/', (request, response) => {
+    let options = {include: [{ model: Book }, { model: Patron }] };
+  Loan.findAll(options)
+    .then(loans => {
+      response.render('all_loans',{
       title: 'Loans',
-      loans: results.rows
-      });
-})
+      loans
+    })
+    .catch(err => {
+      console.log(err);
+      response.sendStatus(500);
+      })
+    });
 });
-
 
 module.exports = router;

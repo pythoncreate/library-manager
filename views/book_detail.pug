@@ -3,7 +3,7 @@ extends layout
 block content
   h1 Book: #{title}
 
-  form(method='POST' action="/books/details" + book.id)
+  form(method='POST' action=`/books/${book.id}`)
     P 
       label(for='title') Book Title:
       input(id='title' name='title' width="175" type='text' value=book.title)
@@ -16,6 +16,34 @@ block content
     p
       label(for='genre') First Published:
       input(id='first_published' name='first_published' type='text' value=book.first_published)
-    button Update
+    p
+      input(type='submit', value='Update')
 
-    h2 Loan History
+  h2 Loan History
+  table
+   thead
+    tr
+      th Book
+      th Patron
+      th Loaned On
+      th Return By
+      th Returned On
+      th Action
+
+    tbody
+      if loans.length > 0
+        each loan in loans
+          tr
+            td
+              a(href='/books/details/' + book.id) #{book.title}
+            td
+              a(href='/patrons/details/' + loan.Patron.id) #{loan.Patron.first_name} #{loan.Patron.last_name}
+            td= loan.return_by
+            td= loan.returned_on
+            td
+            if(!loan.returned_on)
+            td
+              a.button(href=`/books/${book.id}/return`) Return Book
+      else
+        tr
+          td No Loans
