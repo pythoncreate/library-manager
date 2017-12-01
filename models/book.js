@@ -26,7 +26,6 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     first_published: DataTypes.INTEGER,
-    timestamps: false
   });
 
   //Class Method

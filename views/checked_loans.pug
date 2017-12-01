@@ -1,0 +1,41 @@
+extends layout
+
+block content
+  h1= title
+  p
+    a.button(href='/loans/new') Create New Loan
+
+  p Filters:
+    a(href='/loans') All
+    |     |
+    a(href='/loans/overdue_loans') Overdue
+    |     |
+    a(href='/loans/checked_loans') Checked Out
+
+  table
+    thead
+      tr
+        th Book
+        th Patron
+        th Loaned On
+        th Return By
+        th Returned On
+        th Action
+
+    tbody
+      if checked_loans.length > 0
+        each loan in checked_loans
+          tr
+            td
+              a(href='/books/details/' + loan.Book.id) #{loan.Book.title}
+            td
+              a(href='/patrons/details/' + loan.Patron.id) #{loan.Patron.first_name} #{loan.Patron.last_name}
+            td= loan.return_by
+            td= loan.returned_on
+            td
+            if(!loan.returned_on)
+            td
+              a.button(href=`/books/${loan.Book.id}/return`) Return Book
+      else
+        tr
+          td No Loans

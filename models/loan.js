@@ -33,7 +33,6 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    timestamps: false,
     returned_on: {
       type: DataTypes.DATEONLY,
       allowNull: true
