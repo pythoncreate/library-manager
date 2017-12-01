@@ -64,9 +64,9 @@ router.get('/new', function(req, res, next) {
 });
 
 /* POST a NEW LOAN*/
-router.post('/', function(req, res, next) {
+router.post('/new', function(req, res, next) {
   Loan.create(req.body).then(function(loan) {
-    res.redirect("/");
+    res.redirect("/loans");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
         res.render("new_loan", {loan: Loan.build(req.body), errors: error.errors})
