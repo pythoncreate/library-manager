@@ -8,18 +8,14 @@ const { Sequelize, Loan, Book, Patron } = require('../models');
 
 //Get ALL Loans
 router.get('/', (request, response) => {
-    Loan.findAll({
-    include: [{ model: Book }, { model: Patron }],
-    })
+    let options = {include: [{ model: Book }, { model: Patron }] };
+  Loan.findAll(options)
     .then(loans => {
-      response.render('all_loans',{
-      title: 'Loans',
-      loans
+      response.render('all_loans', { loans });
     })
     .catch(err => {
       console.log(err);
       response.sendStatus(500);
-      })
     });
 });
 
@@ -59,6 +55,7 @@ router.get('/checked_loans', (request, response) => {
 router.get('/new', function(req, res, next) {
    const books = Book.findAll();
    const patrons = Patron.findAll();
+   let loan;
 
    Promise.all([books, patrons]).then(function(data) {
 
