@@ -24,8 +24,9 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'A genre is required'
         }
       }
-    }, 
+    },
     first_published: DataTypes.INTEGER,
+    timestamps: false
   });
 
   //Class Method

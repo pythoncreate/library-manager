@@ -27,19 +27,73 @@ router.get("/details/:id", (req, res)=> {
   });
 });
 
+/* PUT update book. */
+router.post("/details/:id", function(req, res, next){
+  Book.findById(req.params.id).then(function(book){
+    if(book) {
+      return book.update(req.body);
+    } else {
+      res.send(404);
+    }
+  }).then(function(book){
+    res.redirect("/books");
+  }).catch(function(error){
+      if(error.name === "SequelizeValidationError") {
+        var article = Book.build(req.body);
+        book.id = req.params.id;
+        res.render("books/details/" + book.id, {book: book, errors: error.errors})
+      } else {
+        throw error;
+      }
+  }).catch(function(error){
+      res.send(500, error);
+   });
+})
+
 // Get overdue books
 router.get("/overdue",(request, response) => {
-    Loan.findAll({
-        include: [{ model: Loan, model: Patron }],
-        where: {
-          return_by: { $lt: new Date() },
-          returned_on: null
-        }
+    Book.findAll({
+        include: [{
+        model: Loan,
+        where: {return_by: { $lt: new Date() }, returned_on: null}
+        }],
     })
     .then(result => {
         response.render('overdue_books', {overdue_books: result, title:"Overdue Books"})
     });
     });
 
-  
+// Get checked out books
+router.get("/checked",(request, response) => {
+    Book.findAll({
+        include: [{
+        model: Loan,
+        where: {returned_on: null}
+        }],
+    })
+    .then(result => {
+        response.render('checked_books', {checked_books: result, title:"Checked Books"})
+    });
+    });
+
+/* Create a new book form. */
+router.get('/new', function(req, res, next) {
+  res.render("new_book", {book: {}});
+});
+
+/* POST create book. */
+router.post('/', function(req, res, next) {
+  Book.create(req.body).then(function(book) {
+    res.redirect("/books/details/" + book.id);
+  }).catch(function(error){
+      if(error.name === "SequelizeValidationError") {
+        res.render("new_book", {book: Book.build(req.body), errors: error.errors})
+      } else {
+        throw error;
+      }
+  }).catch(function(error){
+      res.send(500, error);
+   });
+;});
+
 module.exports = router;

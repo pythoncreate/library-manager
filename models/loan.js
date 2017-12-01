@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     loaned_on: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       validate: {
         notEmpty: {
           msg: 'A loaned on date is required'
@@ -26,17 +26,21 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     return_by: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       validate: {
         notEmpty: {
           msg: 'A return by date is required'
         }
       }
     },
-    returned_on: DataTypes.DATE
+    timestamps: false,
+    returned_on: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    }
   });
   //Class Method
-  Loan.associate = function(models) {
+    Loan.associate = function(models) {
     // associations can be defined here
     Loan.belongsTo(models.Book, {foreignKey:'book_id'});
     Loan.belongsTo(models.Patron, {foreignKey:'patron_id'});
