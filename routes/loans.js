@@ -11,7 +11,8 @@ router.get('/', (request, response) => {
     let options = {include: [{ model: Book }, { model: Patron }] };
   Loan.findAll(options)
     .then(loans => {
-      response.render('all_loans', { loans });
+      response.render('all_loans', { loans , title:"Loans"});
+
     })
     .catch(err => {
       console.log(err);

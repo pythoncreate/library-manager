@@ -17,16 +17,28 @@ router.get('/', function(req, res, next) {
 })
 });
 
-///* GET details of a patron */
-//router.get("/details/:id", function(req, res, next){
-//  Patron.findById(req.params.id).then(function(patron){
-//    if(patron){
-//      res.render('patron_detail', {patron:patron});
-//    } else {
-//      res.send(404);
-//    }
-//  })
-//});
+/* POST Update Patron */
+router.post("/details/:id", function(req, res, next){
+  Patron.findById(req.params.id).then(function(patron){
+    if(patron) {
+      return patron.update(req.body);
+    } else {
+      res.send(404);
+    }
+  }).then(function(patron){
+    res.redirect("/patrons");
+  }).catch(function(error){
+      if(error.name === "SequelizeValidationError") {
+        var article = Patron.build(req.body);
+        patron.id = req.params.id;
+        res.render("patrons/details/" + patron.id, {patron: patron, errors: error.errors})
+      } else {
+        throw error;
+      }
+  }).catch(function(error){
+      res.send(500, error);
+   });
+})
 
 // Get book detail + loans
 router.get("/details/:id", (req, res)=> {
@@ -38,5 +50,25 @@ router.get("/details/:id", (req, res)=> {
      res.render('patron_detail', {patron: data[0], patron_loans: data[1]});
   });
 });
+
+/* Create a new book form. */
+router.get('/new', function(req, res, next) {
+  res.render("new_patron", {patron: {}});
+});
+
+/* POST create book. */
+router.post('/', function(req, res, next) {
+  Patron.create(req.body).then(function(patron) {
+    res.redirect("/patrons/details/" + patron.id);
+  }).catch(function(error){
+      if(error.name === "SequelizeValidationError") {
+        res.render("new_patron", {patron: Patron.build(req.body), errors: error.errors})
+      } else {
+        throw error;
+      }
+  }).catch(function(error){
+      res.send(500, error);
+   });
+;});
 
 module.exports = router;

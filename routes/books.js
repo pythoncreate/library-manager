@@ -27,7 +27,7 @@ router.get("/details/:id", (req, res)=> {
   });
 });
 
-/* PUT update book. */
+/* POST update book. */
 router.post("/details/:id", function(req, res, next){
   Book.findById(req.params.id).then(function(book){
     if(book) {
@@ -46,7 +46,7 @@ router.post("/details/:id", function(req, res, next){
         throw error;
       }
   }).catch(function(error){
-      res.send(500, error);
+      res.status(500).send(error);
    });
 })
 
