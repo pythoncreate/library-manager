@@ -28,7 +28,7 @@ router.get("/details/:id", (req, res)=> {
 });
 
 /* POST update book. */
-router.post("/details/:id", function(req, res, next){
+router.put("/details/:id", function(req, res, next){
   Book.findById(req.params.id).then(function(book){
     if(book) {
       return book.update(req.body);
@@ -36,19 +36,19 @@ router.post("/details/:id", function(req, res, next){
       res.send(404);
     }
   }).then(function(book){
-    res.redirect("/books");
+    res.redirect("/books/");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        var article = Book.build(req.body);
+        var book = Book.build(req.body);
         book.id = req.params.id;
         res.render("books/details/" + book.id, {book: book, errors: error.errors})
       } else {
         throw error;
       }
   }).catch(function(error){
-      res.status(500).send(error);
+      res.send(500, error);
    });
-})
+});
 
 // Get overdue books
 router.get("/overdue",(request, response) => {

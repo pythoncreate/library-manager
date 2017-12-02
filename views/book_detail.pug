@@ -3,7 +3,9 @@ extends layout
 block content
   h1 Book: #{title}
 
-  form(action="/books/details/" + book.id, method="post")
+  include error
+
+  form(action='/books/details/' + book.id + "?_method=PUT", method="post")
     P 
       label(for='title') Book Title:
       input(id='title' name='title' width="175" type='text' value=book.title)
