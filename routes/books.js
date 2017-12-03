@@ -28,7 +28,7 @@ router.get("/details/:id", (req, res)=> {
 });
 
 /* POST update book. */
-router.put("/details/:id", function(req, res, next){
+router.put("/details/:id", function(req, res){
   Book.findById(req.params.id).then(function(book){
     if(book) {
       return book.update(req.body);
@@ -39,9 +39,11 @@ router.put("/details/:id", function(req, res, next){
     res.redirect("/books/");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        var book = Book.build(req.body);
-        book.id = req.params.id;
-        res.render("books/details/" + book.id, {book: book, errors: error.errors})
+        const book = Book.build(req.body);
+        const loans = Loan.findAll({where: {book_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
+        Promise.all([book, loans]).then(function(data){
+        res.render("book_detail", {book: data[0], loans: data[1], errors: error.errors})
+        })
       } else {
         throw error;
       }
@@ -95,5 +97,18 @@ router.post('/', function(req, res, next) {
       res.send(500, error);
    });
 ;});
+
+/* POST Return Book*/
+router.get('/:id/return', function(req,res) {
+    Loan.findAll({where: {book_id: req.params.id}, include: [{ model: Patron}, {model: Book}]})
+    .then(loans => {
+      res.render('return_book', { loan:loans[0], patron:loans[1], book:loans[2] });
+
+    })
+    .catch(err => {
+      console.log(err);
+      response.sendStatus(500);
+    });
+});
 
 module.exports = router;

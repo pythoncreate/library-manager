@@ -79,4 +79,17 @@ router.post('/new', function(req, res, next) {
    });
 ;});
 
+/* GET Return Form*/
+router.get('/:id/return', function(req,res) {
+    Loan.findAll({where: {id: req.params.id}, include: [{ model: Patron}, {model: Book}]})
+    .then(loans => {
+      res.render('return_book', { loan:loans[0], patron:loans[1], book:loans[2] });
+
+    })
+    .catch(err => {
+      console.log(err);
+      response.sendStatus(500);
+    });
+});
+
 module.exports = router;

@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1= title
+  p 
+    strong Book Title: #{loan.Book.title}
+  p
+    strong Loaned By: #{loan.Patron.first_name} #{loan.Patron.last_name}
+  p 
+    strong Loaned On: #{loan.loaned_on}
+  p
+    strong Return By: #{loan.return_by}
+  p
+    strong Returned On:
+  form(action='/${loan.Book.id}/return/' + "?_method=PUT", method="post")
+    input#loaned_on(type='text', name='loaned_on', value=new Date())
+  p
+    input(type='submit', value='Return Book')
