@@ -19,9 +19,9 @@ block content
           option(value=patron.id) #{patron.first_name} #{patron.last_name}
     p
       label(for='loaned_on') Loaned on:
-      input#loaned_on(type='text', name='loaned_on', value=new Date())
+      input#loaned_on(type='text', name='loaned_on', value=`${formattedToday}`)
     p
       label(for='return_by') Return by:
-      input#return_by(type='text', name='return_by', value=new Date(new Date().getTime()+(5*24*60*60*1000)))
+      input#return_by(type='text', name='return_by', value=`${todayAddSeven}`)
     p
       input(type='submit', value='Create New Loan')

@@ -35,7 +35,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     returned_on: {
       type: DataTypes.DATEONLY,
-      allowNull: true
     }
   });
   //Class Method

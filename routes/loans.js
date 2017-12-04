@@ -2,6 +2,11 @@
 
 var express = require('express');
 var router = express.Router();
+var moment = require('moment');
+
+var today = new Date();
+var formattedToday = moment(today).format('YYYY-MM-DD');
+var todayAddSeven = moment(formattedToday).add(7, 'days').format('YYYY-MM-DD');
 
 const { Sequelize, Loan, Book, Patron } = require('../models');
 
@@ -60,7 +65,7 @@ router.get('/new', function(req, res, next) {
 
    Promise.all([books, patrons]).then(function(data) {
 
-   res.render('new_loan', {books: data[0], patrons: data[1], loan: {}});
+   res.render('new_loan', {books: data[0], patrons: data[1], formattedToday, todayAddSeven, loan: {}});
 });
 });
 
@@ -83,7 +88,7 @@ router.post('/new', function(req, res, next) {
 router.get('/:id/return', function(req,res) {
     Loan.findAll({where: {id: req.params.id}, include: [{ model: Patron}, {model: Book}]})
     .then(loans => {
-      res.render('return_book', { loan:loans[0], patron:loans[1], book:loans[2]});
+      res.render('return_book', { loan:loans[0], patron:loans[1], book:loans[2], formattedToday});
 
     })
     .catch(err => {
@@ -94,17 +99,23 @@ router.get('/:id/return', function(req,res) {
 
 /* PUT Return Form*/
 router.post("/:id/return", function(req,res) {
-    Loan.findById(req.params.id).then(function(loan){
-        if(loan) {
-          loan.update(req.body);
-        } else {
-          res.send(404);
-        }
-    }).then(function(loan){
-        res.redirect("/loans/");
-    }).catch(function(error){
-        res.send(500, error);
-});
+    Loan.findAll({
+        where: [{
+          id : req.params.id
+        }],
+        include: [
+          {model: Patron},
+          {model: Book}
+        ]
+      }).then(() => {
+        Loan.update(req.body, {
+            where: [{
+             id: req.params.id
+            }]
+        }).then(function() {
+            res.redirect('/loans');
+        });
+    });
 });
 
 module.exports = router;
