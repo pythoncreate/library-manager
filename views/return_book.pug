@@ -1,18 +1,22 @@
 extends layout
 
 block content
-  h1= title
+  h1 #{loan.Patron.first_name} #{loan.Patron.last_name}: Return Book
   p 
-    strong Book Title: #{loan.Book.title}
+    strong Book Title: &nbsp;
+    | #{loan.Book.title}
   p
-    strong Loaned By: #{loan.Patron.first_name} #{loan.Patron.last_name}
+    strong Loaned By: &nbsp; 
+    | #{loan.Patron.first_name} #{loan.Patron.last_name}
   p 
-    strong Loaned On: #{loan.loaned_on}
+    strong Loaned On: &nbsp; 
+    | #{loan.loaned_on}
   p
-    strong Return By: #{loan.return_by}
-  p
-    strong Returned On:
-  form(action='/${loan.Book.id}/return/' + "?_method=PUT", method="post")
-    input#loaned_on(type='text', name='loaned_on', value=new Date())
-  p
+    strong Return By: &nbsp;
+    | #{loan.return_by}
+  form(action=`/loans/${loan.Book.id}/return/`, method="post")
+    p
+    strong Returned On: &nbsp;
+    input#loaned_on(type='text', name='loaned_on', value=today)
+    p
     input(type='submit', value='Return Book')

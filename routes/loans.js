@@ -83,13 +83,28 @@ router.post('/new', function(req, res, next) {
 router.get('/:id/return', function(req,res) {
     Loan.findAll({where: {id: req.params.id}, include: [{ model: Patron}, {model: Book}]})
     .then(loans => {
-      res.render('return_book', { loan:loans[0], patron:loans[1], book:loans[2] });
+      res.render('return_book', { loan:loans[0], patron:loans[1], book:loans[2]});
 
     })
     .catch(err => {
       console.log(err);
       response.sendStatus(500);
     });
+});
+
+/* PUT Return Form*/
+router.post("/:id/return", function(req,res) {
+    Loan.findById(req.params.id).then(function(loan){
+        if(loan) {
+          loan.update(req.body);
+        } else {
+          res.send(404);
+        }
+    }).then(function(loan){
+        res.redirect("/loans/");
+    }).catch(function(error){
+        res.send(500, error);
+});
 });
 
 module.exports = router;

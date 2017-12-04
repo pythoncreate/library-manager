@@ -28,28 +28,23 @@ router.get("/details/:id", (req, res)=> {
 });
 
 /* POST update book. */
-router.put("/details/:id", function(req, res){
-  Book.findById(req.params.id).then(function(book){
-    if(book) {
-      return book.update(req.body);
-    } else {
-      res.send(404);
-    }
-  }).then(function(book){
-    res.redirect("/books/");
-  }).catch(function(error){
-      if(error.name === "SequelizeValidationError") {
+router.post("/details/:id", function(req, res){
+  Book.update(req.body, {
+    where: [{ id: req.params.id }]
+    })
+    .then(function(book){
+          return res.redirect("/books/");
+    })
+    .catch(Sequelize.ValidationError, function(error){
         const book = Book.build(req.body);
         const loans = Loan.findAll({where: {book_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
         Promise.all([book, loans]).then(function(data){
         res.render("book_detail", {book: data[0], loans: data[1], errors: error.errors})
         })
-      } else {
-        throw error;
-      }
-  }).catch(function(error){
-      res.send(500, error);
-   });
+    })
+    .catch(function(error){
+          console.log(error);
+    });
 });
 
 // Get overdue books
