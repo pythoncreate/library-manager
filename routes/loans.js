@@ -61,28 +61,41 @@ router.get('/checked_loans', (request, response) => {
 router.get('/new', function(req, res, next) {
    const books = Book.findAll();
    const patrons = Patron.findAll();
-   let loan;
 
    Promise.all([books, patrons]).then(function(data) {
 
-   res.render('new_loan', {books: data[0], patrons: data[1], formattedToday, todayAddSeven, loan: {}});
+   res.render('new_loan', {books: data[0], patrons: data[1], formattedToday, todayAddSeven});
 });
-});
+})
 
 /* POST a NEW LOAN*/
 router.post('/new', function(req, res, next) {
-  Loan.create(req.body).then(function(loan) {
-    res.redirect("/loans");
-  }).catch(function(error){
-      if(error.name === "SequelizeValidationError") {
-        res.render("new_loan", {loan: Loan.build(req.body), errors: error.errors})
-      } else {
-        throw error;
-      }
-  }).catch(function(error){
-      res.send(500, error);
-   });
-;});
+
+  Loan.create(req.body)
+    .then(function() {
+      res.redirect('/loans');
+    })
+    .catch(function(error) {
+      const books = Book.findAll({
+        order: [
+          ['title', 'ASC']
+        ]
+    });
+
+  const patrons = Patron.findAll({
+    order: [
+      ['first_name', 'ASC'],
+      ['last_name', 'ASC']
+    ]
+  });
+
+  Promise.all([books, patrons])
+    .then(function(values) {
+      res.render('new_loan', {books: values[0], patrons: values[1], formattedToday, todayAddSeven, 
+        formattedToday: req.body.loaned_on, todayAddSeven: req.body.return_by, errors: error.errors, });
+    })
+  });
+})
 
 /* GET Return Form*/
 router.get('/:id/return', function(req,res) {
@@ -98,8 +111,14 @@ router.get('/:id/return', function(req,res) {
 });
 
 /* PUT Return Form*/
-router.post("/:id/return", function(req,res) {
-    Loan.findAll({
+router.post('/:id/return', (req, res, next) => {
+    
+    let error = [];
+    let returned_on = req.body.returned_on;
+  
+    if ((!returned_on) || (returned_on.match (/[a-z]/i)) || (returned_on < formattedToday)) {
+      error.push('Please enter a valid return date!');
+      Loan.findAll({
         where: [{
           id : req.params.id
         }],
@@ -107,15 +126,21 @@ router.post("/:id/return", function(req,res) {
           {model: Patron},
           {model: Book}
         ]
-      }).then(() => {
-        Loan.update(req.body, {
-            where: [{
-             id: req.params.id
-            }]
-        }).then(function() {
-            res.redirect('/loans');
-        });
-    });
-});
+      }).then(function(loans) {
+        res.render('return_book', {loan: loans[0], patron: loans[1], book: loans[2], formattedToday, errors: error});
+      });
+    } 
+    else { 
+      Loan.update(req.body, {
+        where: [{
+          id: req.params.id
+        }]
+      }).then(function() {
+        res.redirect('/loans');
+      });
+    }
+  })
+  
+
 
 module.exports = router;

@@ -3,6 +3,8 @@ extends layout
 block content
   h1 Patron: #{patron.first_name} #{patron.last_name}
 
+  include error
+
   form(method='POST' action="/patrons/details/" + patron.id)
     P 
       label(for='first_name') First name:
