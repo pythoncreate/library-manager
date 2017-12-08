@@ -128,6 +128,10 @@ router.post('/:id/return', (req, res, next) => {
         ]
       }).then(function(loans) {
         res.render('return_book', {loan: loans[0], patron: loans[1], book: loans[2], formattedToday, errors: error});
+      })
+      .catch(err => {
+        console.log(err);
+        response.sendStatus(500);
       });
     } 
     else { 
@@ -137,6 +141,10 @@ router.post('/:id/return', (req, res, next) => {
         }]
       }).then(function() {
         res.redirect('/loans');
+      })
+      .catch(err => {
+        console.log(err);
+        response.sendStatus(500);
       });
     }
   })
