@@ -35,13 +35,14 @@ router.post("/details/:id", function(req, res){
     .then(function(book){
           return res.redirect("/books/");
     })
-    .catch(Sequelize.ValidationError, function(error){
-        const book = Book.build(req.body);
-        const loans = Loan.findAll({where: {book_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
-        Promise.all([book, loans]).then(function(data){
-        res.render("book_detail", {book: data[0], loans: data[1], errors: error.errors})
-        })
-    })
+    .catch(error => {
+        if (error.name === 'SequelizeValidationError'){
+          const book = Book.build(req.body);
+          const loans = Loan.findAll({where: {patron_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
+          book.id = req.params.id;
+          return res.render("book_detail", {book: book, loans:loans, errors:error.errors});
+        }
+      })
     .catch(function(error){
         res.send(500, error);
     });

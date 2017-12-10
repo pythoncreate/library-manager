@@ -29,29 +29,26 @@ router.get("/details/:id", (req, res)=> {
 });
 
 /* POST Update Patron */
-router.post("/details/:id", function(req, res, next){
-  console.log(req.body);
+router.post("/details/:id", function(req, res){
   Patron.update(req.body, {
-    where: [{id: req.params.id}]
-  })
-  .then((patron) => {
-    res.redirect("/patrons");
-  })
-  .catch(function(error){
-      if(error.name === "SequelizeValidationError") {
-      const patron = Patron.build(req.body);
-      const loans = Loan.findAll({where: {patron_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
-      Promise.all([patron, loans]).then(function(data){
-        res.render("patron_detail", {patron: data[0], loans: data[1], errors: error.errors})
-      })
-    } else {
-      throw error;
-    }
-    }).catch(function(error){
-        res.send(500, error);
+    where: [{ 
+      id: req.params.id }]})
+    .then(function() {
+      return res.redirect("/patrons");
+    })
+    .catch(error => {
+      if (error.name === 'SequelizeValidationError'){
+        const loans = Loan.findAll({where: {patron_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
+        var patron = Patron.build(req.body);
+        patron.id = req.params.id;
+        return res.render("patron_detail", {patron: patron, loans:loans, errors:error.errors});
+      }
+    })
+    .catch(function(error){
+      res.send(500, error);
     });
   });
-   
+
 /* Create a new patron form. */
 router.get('/new', function(req, res, next) {
   res.render("new_patron", {patron: {}});
