@@ -17,40 +17,41 @@ router.get('/', function(req, res, next) {
 })
 });
 
-/* POST Update Patron */
-router.post("/details/:id", function(req, res, next){
-  Patron.findById(req.params.id).then(function(patron){
-    if(patron) {
-      return patron.update(req.body);
-    } else {
-      res.send(404);
-    }
-  }).then(function(patron){
-    res.redirect("/patrons");
-  }).catch(function(error){
-      if(error.name === "SequelizeValidationError") {
-        var article = Patron.build(req.body);
-        patron.id = req.params.id;
-        res.render("patrons/details/" + patron.id, {patron: patron, errors: error.errors})
-      } else {
-        throw error;
-      }
-  }).catch(function(error){
-      res.send(500, error);
-   });
-})
-
 // Get Patron detail + loans
 router.get("/details/:id", (req, res)=> {
-     const patron = Patron.findById(req.params.id);
-     const patron_loans = Loan.findAll({where: {patron_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
+  const patron = Patron.findById(req.params.id);
+  const loans = Loan.findAll({where: {patron_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
 
-     Promise.all([patron, patron_loans]).then(function(data) {
+  Promise.all([patron, loans]).then(function(data) {
 
-     res.render('patron_detail', {patron: data[0], patron_loans: data[1]});
-  });
+  res.render('patron_detail', {patron: data[0], loans: data[1]});
+});
 });
 
+/* POST Update Patron */
+router.post("/details/:id", function(req, res, next){
+  console.log(req.body);
+  Patron.update(req.body, {
+    where: [{id: req.params.id}]
+  })
+  .then((patron) => {
+    res.redirect("/patrons");
+  })
+  .catch(function(error){
+      if(error.name === "SequelizeValidationError") {
+      const patron = Patron.build(req.body);
+      const loans = Loan.findAll({where: {patron_id: req.params.id}, include: [{ model: Patron}, {model: Book}]});
+      Promise.all([patron, loans]).then(function(data){
+        res.render("patron_detail", {patron: data[0], loans: data[1], errors: error.errors})
+      })
+    } else {
+      throw error;
+    }
+    }).catch(function(error){
+        res.send(500, error);
+    });
+  });
+   
 /* Create a new patron form. */
 router.get('/new', function(req, res, next) {
   res.render("new_patron", {patron: {}});

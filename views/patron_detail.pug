@@ -5,7 +5,7 @@ block content
 
   include error
 
-  form(method='POST' action="/patrons/details/" + patron.id)
+  form(action='/patrons/details/' + patron.id, method="post")
     P 
       label(for='first_name') First name:
       input(id='first_name' name='first_name' type='text' value=patron.first_name)
@@ -39,8 +39,8 @@ block content
       th Action
 
     tbody
-      if patron_loans.length > 0
-        each loan in patron_loans
+      if loans.length > 0
+        each loan in loans
           tr
             td
               a(href='/books/details/' + loan.Book.id) #{loan.Book.title}

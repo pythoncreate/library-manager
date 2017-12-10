@@ -43,7 +43,7 @@ router.post("/details/:id", function(req, res){
         })
     })
     .catch(function(error){
-          console.log(error);
+        res.send(500, error);
     });
 });
 

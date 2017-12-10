@@ -40,12 +40,12 @@ block content
               a(href='/books/details/' + book.id) #{book.title}
             td
               a(href='/patrons/details/' + loan.Patron.id) #{loan.Patron.first_name} #{loan.Patron.last_name}
+            td= loan.loaned_on
             td= loan.return_by
             td= loan.returned_on
-            td
             if(!loan.returned_on)
-            td
-              a.button(href=`/loans/${loan.id}/return`) Return Book
+              td
+                a.button(href=`/loans/${loan.id}/return`) Return Book
       else
         tr
           td No Loans
